@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Naruto Draft</title>
+<style>
+    body {
+        margin: 0;
+        background: #111;
+        color: #fff;
+        font-family: Arial, sans-serif;
+        overflow-x: hidden;
+    }
+
+    header {
+        text-align: center;
+        padding: 12px;
+        font-size: 22px;
+        font-weight: bold;
+        color: #f7c80b;
+        text-shadow: 0 0 8px #ff6600;
+    }
+
+    /* Turn Label */
+    #turnLabel {
+        text-align: center;
+        font-size: 20px;
+        font-weight: bold;
+        margin-top: 6px;
+        margin-bottom: 4px;
+        color: #3fa9f5;
+    }
+
+    /* Wheel Layout */
+    #wheelContainer {
+        display: flex;
+        justify-content: center;
+        margin-top: 10px;
+        position: relative;
+    }
+
+    #spinBtn {
+        display: block;
+        margin: 15px auto;
+        padding: 10px 20px;
+        font-size: 18px;
+        background: linear-gradient(90deg,#3fa9f5,#ff7f0e);
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        color: #fff;
+    }
+
+    #spinBtn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    #kunai {
+        position: absolute;
+        width: 45px;
+        transform: rotate(180deg);
+        z-index: 5;
+        pointer-events: none;
+    }
+
+    /* Modal Card */
+    #cardModal {
+        position: fixed;
+        left: 0; top: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.85);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 999;
+    }
+
+    #cardContent {
+        width: 420px;
+        background: #1a1a1a;
+        border: 5px solid #d8b55a;
+        border-radius: 12px;
+        padding: 18px;
+        box-shadow: 0 0 25px rgba(0,0,0,0.7);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #charName {
+        margin-bottom: 12px;
+        padding: 6px 14px;
+        font-size: 22px;
+        font-weight: bold;
+        color: #ffd86b;
+        background: #333;
+        border: 2px solid #d8b55a;
+        border-radius: 6px;
+        text-align: center;
+    }
+
+    #charPortrait {
+        width: 260px;
+        height: 340px;
+        object-fit: cover;
+        border-radius: 10px;
+        border: 3px solid #d8b55a;
+        box-shadow: 0 0 15px rgba(0,0,0,0.6);
+        margin-bottom: 14px;
+    }
+
+    #scrollContainer {
+        width: 280px;
+        height: 150px;
+        margin: 0 auto 10px auto;
+        background-image: url('Images/UI/parchment.png');
+        background-size: cover;
+        background-position: center;
+        border: 2px solid #5a3a22;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-top: 34px;
+        box-sizing: border-box;
+    }
+
+    #roleSelect {
+        width: 140px;
+        font-size: 14px;
+        padding: 3px;
+        margin-bottom: 6px;
+    }
+
+    #assignBtn, #skipBtn {
+        width: 120px;
+        padding: 4px 6px;
+        margin: 2px 0;
+        font-size: 14px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        color: #111;
+    }
+
+    #assignBtn { background: #3fa9f5; }
+    #skipBtn { background: #ff7f0e; }
+
+    @keyframes cardReveal {
+        from { opacity:0; transform:translateY(40px) scale(0.96); }
+        to { opacity:1; transform:translateY(0) scale(1); }
+    }
+
+    .revealAnimation {
+        animation: cardReveal 0.35s ease-out forwards;
+    }
+    /* Result Modal (Dark theme) */
+#resultModal {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+/* Result Content Box */
+#resultContent {
+    background: #1b1b1b;
+    border: 3px solid #444;
+    border-radius: 10px;
+    width: 70%;
+    max-width: 900px;
+    max-height: 80%;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    box-sizing: border-box;
+    box-shadow: 0 0 20px rgba(0,0,0,0.7);
+}
+
+/* Scroll Area Inside Modal */
+#resultScroll {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 15px;
+}
+
+#resultText {
+    white-space: pre-wrap;
+    color: #fff;
+    font-size: 15px;
+    line-height: 1.4;
+    font-family: Consolas, monospace;
+}
+
+/* Buttons Row */
+#resultButtons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+#copyResultsBtn, #restartBtn {
+    padding: 8px 14px;
+    font-size: 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#copyResultsBtn {
+    background: #3fa9f5;
+    color: #111;
+}
+
+#restartBtn {
+    background: #ff7f0e;
+    color: #111;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* ================= LINEUP MODAL ================= */
+
+#lineupModal {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: none;
+    background: rgba(0,0,0,0.85);
+    justify-content: center;
+    align-items: center;
+    z-index: 3000;
+}
+
+#lineupContent {
+    width: 70%;
+    max-width: 950px;
+    max-height: 80%;
+    background: #1b1b1b;
+    border-radius: 12px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 20px rgba(0,0,0,0.8);
+}
+
+#lineupHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+#lineupTitle {
+    font-size: 26px;
+    font-weight: bold;
+    color: white;
+    flex: 1;
+    text-align: center;
+}
+
+#lineupCloseBtn {
+    padding: 6px 12px;
+    background: #ff7f0e;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #111;
+    font-weight: bold;
+}
+
+#viewLineupBtn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    padding: 8px 14px;
+    background: #3fa9f5;
+    color: #111;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+/* TABLE */
+#lineupTableWrapper {
+    overflow-y: auto;
+    max-height: 70vh;
+}
+
+#lineupTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#lineupTable th,
+#lineupTable td {
+    border: 1px solid #444;
+    padding: 8px;
+    text-align: center;
+    color: white;
+    font-size: 15px;
+}
+
+#lineupTable th {
+    background: #333;
+    font-weight: bold;
+}
+
+.toBeSelected {
+    color: #777;
+    font-style: italic;
+}
+
+
+
+</style>
+</head>
+<body>
+
+<header>Naruto Role Draft</header>
+<div id="turnLabel">Team A's Turn</div>
+
+<div id="wheelContainer">
+    <canvas id="wheelCanvas" width="400" height="400"></canvas>
+    <img id="kunai" src="Images/UI/Kunai.png">
+</div>
+
+<button id="spinBtn">Spin</button>
+
+<div id="cardModal">
+    <div id="cardContent">
+        <div id="charName"></div>
+        <img id="charPortrait" src="">
+        <div id="scrollContainer">
+            <select id="roleSelect"></select>
+            <button id="assignBtn">Assign</button>
+            <button id="skipBtn">Skip</button>
+        </div>
+    </div>
+</div>
+<!-- Result Modal -->
+<div id="resultModal">
+    <div id="resultContent">
+        <div id="resultScroll">
+            <pre id="resultText"></pre>
+        </div>
+        <div id="resultButtons">
+            <button id="copyResultsBtn">Copy Results</button>
+            <button id="restartBtn">Restart Draft</button>
+        </div>
+    </div>
+</div>
+<!-- LINEUP MODAL -->
+<div id="lineupModal">
+    <div id="lineupContent">
+        <div id="lineupHeader">
+            <span id="lineupTitle">Line Ups</span>
+            <button id="lineupCloseBtn">Go back</button>
+        </div>
+
+        <div id="lineupTableWrapper">
+            <table id="lineupTable">
+                <thead>
+                    <tr>
+                        <th>Role</th>
+                        <th>Team A</th>
+                        <th>Team B</th>
+                    </tr>
+                </thead>
+                <tbody id="lineupBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- LINEUP BUTTON -->
+<button id="viewLineupBtn">View Lineup</button>
+<script src="final.js"></script>
+</body>
+</html>
