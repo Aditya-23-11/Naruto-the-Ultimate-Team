@@ -57,6 +57,27 @@ const spinBtn = document.getElementById("spinBtn");
 const turnLabel = document.getElementById("turnLabel");
 const canvas = document.getElementById("wheelCanvas");
 const ctx = canvas.getContext("2d");
+function resizeCanvas() {
+    let size;
+
+    if (window.innerWidth < 500) {
+        size = 260;   // phone
+    } else if (window.innerWidth < 900) {
+        size = 340;   // tablet
+    } else {
+        size = 420;   // desktop
+    }
+
+    canvas.width = size;
+    canvas.height = size;
+
+    drawWheel();
+    positionKunai();
+}
+
+window.addEventListener("resize", resizeCanvas);
+window.addEventListener("load", resizeCanvas);
+
 const kunai = document.getElementById("kunai");
 
 const cardModal = document.getElementById("cardModal");
@@ -436,3 +457,4 @@ function buildLineupTable() {
 }
 
 };
+
