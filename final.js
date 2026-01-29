@@ -117,8 +117,12 @@ function drawWheel() {
         ctx.rotate(start + slice/2);
         ctx.textAlign="center";
         ctx.fillStyle="#fff";
-        ctx.font="10px Arial";
-        ctx.fillText(remaining[i], radius-60, 4);
+        let fontSize = Math.max(8, canvas.width / 45);
+ctx.font = fontSize + "px Arial";
+
+let textRadius = radius - (canvas.width / 12);
+ctx.fillText(remaining[i], textRadius, 4);
+
         ctx.restore();
     }
     ctx.restore();
@@ -455,5 +459,6 @@ function buildLineupTable() {
 }
 
 };
+
 
 
